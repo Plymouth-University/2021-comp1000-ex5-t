@@ -1,57 +1,83 @@
-using System;
-using System.Collections.Generic;
 using Xunit;
-
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Exercise.Tests
 {
-    
+    [TestCaseOrderer("XUnit.Project.Orderers.PriorityOrderer", "XUnit.Project")]
     public class UnitTestA
     {
-        private Exercise.ProgramA prog;
+        private IMovement prog;
         public UnitTestA()
         {
-            prog = new ProgramA();
+            prog = (IMovement)new ProgramA();
         }
 
-        [Theory]
-        [InlineData(new int[] { 1, 2, 3 }, 6)]
-        [InlineData(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, 3991680)]
-        [InlineData(new int[] { -1, -2, -3 }, -6)]
-        [InlineData(new int[] { -1, -2, -3, 6, 14, 3, 3, 1, 1  }, -4536)]
-        public void Test1(int[] values, int result)
+        [Fact]
+        public void Test0()
         {
-            var outcome = prog.RecursiveMultiplicationFromFirst(values, 0);
-            Assert.True(outcome == result, $"For RecursiveMultiplicationFromFirst: You should have returned: {result} but did return {outcome}.");
+            
+            Assert.True(typeof(IMovement).IsInstanceOfType(prog), $"All tests will only work once the interface is correctly used. Currently you are not using the interface.");
         }
 
 
         [Theory]
-        [InlineData(new int[] { 1, 2 }, 3, -1)]
-        [InlineData(new int[] { 1 }, 1, -1)]
-        [InlineData(new int[] { 1, -2 }, -1, -1)]
-        [InlineData(new int[] {1, 2, 3, 4 }, 6, 2)]
-        [InlineData(new int[] { 1, -1, 2, 3, 67, 1000, 15, -12, -1000, 2 }, 1075, 7)]
-        [InlineData(new int[] { 1, -1, 2, 3, 67, 1000, 15, -12, -1000, 2 }, 0, 1)]
-        public void Test2(int [] values, int result, int end)
+        [InlineData("hello", "HELLO")]
+        [InlineData("mellon pan", "MELLON PAN")]
+        [InlineData("There was a long road, ahead of us.", "THERE WAS A LONG ROAD, AHEAD OF US.")]
+        [InlineData("Christmas is upon us", "CHRISTMAS IS UPON US")]
+        [InlineData("12345", "12345")]
+        [InlineData("FINALLY WE ARE NEARLY DONE!", "FINALLY WE ARE NEARLY DONE!")]
+        [InlineData("no rest for the ...", "NO REST FOR THE ...")]
+        [InlineData("the end is nigh", "THE END IS NIGH")]
+        public void Test1(string values, string result)
         {
-            var outcome = prog.RecursiveAdditionFromLast(values,end == -1? values.Length-1 : end);
-            Assert.True(outcome == result, $"For RecursiveAdditionFromLast: You should have returned: {result} but did return {outcome}.");
+            System.Random rand = new System.Random();
+            string[] message = new string[rand.Next(1,2022)];
+            int pos = rand.Next(0, message.Length - 1);
+            message[pos] = values;
+            var outcome = prog.CapitaliseText(message);
+            Assert.True(outcome == result, $"You should have returned: <{result}> but did return <{outcome}>.");
+        }
+
+        [Theory]
+        [InlineData('w', 0)]
+        [InlineData('W', 0)]
+        [InlineData('a', 3)]
+        [InlineData('s', 1)]
+        [InlineData('S', 1)]
+        [InlineData('A', 3)]
+        [InlineData('L', 2)]
+        [InlineData('i', 0)]
+        [InlineData('d', 2)]
+        [InlineData('k', 1)]
+        [InlineData('J', 3)]
+        public void Test2(char values, int result)
+        {
+            var outcome = prog.Move(values);
+            Assert.True(outcome == result, $"You should have returned: <{result}> but did return <{outcome}>.");
+        }
+
+        [Theory]
+        [InlineData(0, IMovement.Compass.North)]
+        [InlineData(3, IMovement.Compass.West)]
+        [InlineData(1, IMovement.Compass.South)]
+        [InlineData(2, IMovement.Compass.East)]
+        public void Test3(int values, IMovement.Compass result)
+        {
+            var outcome = prog.Move(values);
+            Assert.True(outcome == result, $"You should have returned: <{result}> but did return <{outcome}>.");
         }
 
 
-
         [Theory]
-        [InlineData(new double[] { 1.0f, 2.0f, 3.0f }, 6.0f)]
-        [InlineData(new double[] { 1.0f, -2.0f, 3.0f, 2.00f }, 4.0f)]
-        [InlineData(new double[] { -1.0001f, 2.0f, 3.0f, 2.0f }, 6.0f)]
-        [InlineData(new double[] { -1.103f, 2.2f, 3.1f, 10.0f, 15.0f, 23.1f, 22,12f }, 86.30f)]
-        public void Test3(double[] values, float result)
+        [InlineData(0, IMovement.Compass.North)]
+        [InlineData(3, IMovement.Compass.West)]
+        [InlineData(1, IMovement.Compass.South)]
+        [InlineData(2, IMovement.Compass.East)]
+        public void Test4(int values, IMovement.Compass result)
         {
-            var test = new List<double>(values); 
-            var outcome = prog.RecursiveSum(test);
-
-            Assert.True(outcome.Equals(Math.Round(result,2)), $"For RecursiveSum: You should have returned: {result} but did return {outcome}.");
+            var outcome = prog.Move(result);
+            Assert.True(outcome == values, $"You should have returned: <{result}> but did return <{outcome}>.");
         }
 
     }
